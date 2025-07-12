@@ -1,0 +1,14 @@
+name: 'gh-gpt'
+
+services:
+  gh-gpt:
+    restart: always
+    container_name: gh-gpt
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      GH_COPILOT_TOKEN: 
+    command: server --address 0.0.0.0:3000
+    ports:
+      - 3000:3000

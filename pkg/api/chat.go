@@ -33,7 +33,20 @@ func (c *Client) ChatCompletions(ctx context.Context, token string, chatRequest 
 	return c.request(ctx, token, defaultCompletionsURI, chatRequest, f)
 }
 
-func (c *Client) do(ctx context.Context, token string, path string, data any) (*http.Response, error) {
+func (c *Client) doGet(ctx context.Context, token string, path string) (*http.Response, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, path, nil)
+	if err != nil {
+		return nil, err
+	}
+	for key, value := range chatHeaders {
+		req.Header.Set(key, value)
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+
+	return c.client.Do(req)
+}
+
+func (c *Client) doPost(ctx context.Context, token string, path string, data any) (*http.Response, error) {
 	var buf *bytes.Buffer
 	if data != nil {
 		bts, err := json.Marshal(data)
@@ -57,7 +70,7 @@ func (c *Client) do(ctx context.Context, token string, path string, data any) (*
 }
 
 func (c *Client) stream(ctx context.Context, token string, path string, data any, fn func([]byte) error) error {
-	response, err := c.do(ctx, token, path, data)
+	response, err := c.doPost(ctx, token, path, data)
 	if err != nil {
 		return err
 	}
@@ -100,7 +113,7 @@ func (c *Client) stream(ctx context.Context, token string, path string, data any
 }
 
 func (c *Client) request(ctx context.Context, token string, path string, data any, fn func([]byte) error) error {
-	response, err := c.do(ctx, token, path, data)
+	response, err := c.doPost(ctx, token, path, data)
 	if err != nil {
 		return err
 	}

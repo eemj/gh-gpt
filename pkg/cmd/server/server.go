@@ -69,6 +69,7 @@ func run(cmd *cobra.Command, opts serverOptions) error {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/v1/chat/completions", svc.ChatCompletions)
+	mux.HandleFunc("/v1/models", svc.Models)
 	mux.HandleFunc("/_ping", svc.Ping)
 
 	return http.ListenAndServe(opts.Address, server.CORS(mux))
